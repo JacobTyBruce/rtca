@@ -1,0 +1,53 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.output-window {
+    width: 80vw;
+    height: 50vh;
+    border: 1px solid black;
+}
+
+.content, .status-messages {
+    width: 100%;
+    background: grey;
+}
+
+.user-input {
+    width: 80vw;
+    height: 20vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+}
+
+.message {
+    font-size: 24px;
+    height: 4em;
+    width: 60%;
+    resize: none;
+}
+
+input[type=submit] {
+    font-size: 20px;
+    width: 10%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid green;
+}
+
+.alert {
+    width: 100%;
+    text-align: center;
+    background-color: grey;
+    color: maroon;
+}
