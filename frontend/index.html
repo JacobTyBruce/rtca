@@ -8,11 +8,15 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
+    <div class="warning"></div>
     <div class="output-window">
         <!-- Output goes here-->
     </div>
     <div class="user-input">
-        <textarea type="text" class="message" placeholder="Message"></textarea>
+        <div>
+            <textarea type="text" class="message" placeholder="Message"></textarea>
+            <input type="file" class="file" />
+        </div>
         <input class="btn" type="submit" value="Send" />
     </div>
     <!-- Fix for local sending instead -->

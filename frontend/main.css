@@ -16,12 +16,14 @@ body {
     border: 1px solid black;
 }
 
-.content, .status-messages {
+.content, .alert {
+    font-size: 1.2rem;
     width: 100%;
     background: grey;
 }
 
 .user-input {
+    padding-top: 5vh;
     width: 80vw;
     height: 20vh;
     display: flex;
@@ -30,7 +32,16 @@ body {
     flex-direction: column;
 }
 
+.user-input > div {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
 .message {
+    display: block;
     font-size: 24px;
     height: 4em;
     width: 60%;
@@ -50,4 +61,27 @@ input[type=submit] {
     text-align: center;
     background-color: grey;
     color: maroon;
+}
+
+.warning {
+    width: 50vw;
+    height: 10vh;
+    position: absolute;
+    left: 50%;
+    top: -10vh;
+    transform: translateX(-50%);
+    background-color: red;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    transition: 0.5s all;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.warning.active {
+    top: 0;
+    transition: 0,5s all;
 }
