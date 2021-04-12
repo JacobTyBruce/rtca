@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'frontend')))
 ss.on('connection', (socket) => {
     console.log('a user connected: ' + socket.id);
     socket.on('join', (name) => {
+      console.log(name+'joined')
       // sends new user name to every other client but one that sent
       socket.broadcast.emit('join', name);
     })
