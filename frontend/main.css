@@ -9,6 +9,8 @@ body {
     flex-direction: column;
 }
 
+/* username prompts */
+
 .full-wrapper {
     position: absolute;
     width: 100vw;
@@ -46,6 +48,8 @@ body {
     padding: 15px;
 }
 
+/* output window styles */
+
 .output-window {
     width: 80vw;
     height: 50vh;
@@ -56,12 +60,18 @@ body {
     flex-direction: column;
 }
 
-.content, .alert {
-    font-size: 1.2rem;
-    width: 100%;
-    background: grey;
-    padding: 5px 0 5px 0;
+/* sidebar styles */
+
+.sidebar {
+    width: 20vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgb(4, 247, 247);
 }
+
+/* User data entry styles */
 
 .user-input {
     padding-top: 5vh;
@@ -138,12 +148,28 @@ input[type=submit] {
     transition: 0.5s;
 }
 
+/* Message styles */
+
+.content, .alert {
+    font-size: 1.2rem;
+    width: 100%;
+    background: grey;
+    padding: 5px 0 5px 0;
+}
+
 .alert {
     width: 100%;
     text-align: center;
     background-color: grey;
     color: maroon;
 }
+
+.image {
+    width: 150px;
+    height: 150px;
+}
+
+/* Warning box styles */
 
 .warning {
     z-index: 999;
@@ -170,9 +196,4 @@ input[type=submit] {
 .warning.active {
     top: 0;
     transition: 0.5s all;
-}
-
-.image {
-    width: 150px;
-    height: 150px;
 }

@@ -32,6 +32,10 @@ ss.on('connection', (socket) => {
       socket.broadcast.emit('message', data)
     })
 
+    socket.on('disconnect', (socket) => {
+        console.log(socket + ' has left the server')
+    })
+
 
   });
 
