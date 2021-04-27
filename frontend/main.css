@@ -4,7 +4,8 @@
 }
 
 :root {
-    sidebar-width: min(500px, 100%);
+    --sidebar-width: min(500px, 100%);
+    --sidebar-action-len: 25px;
 }
 body {
     display: flex;
@@ -70,18 +71,29 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 25px;
-    height: 25px;
+    width: var(--sidebar-action-len);
+    height: var(--sidebar-action-len);
     background-color: blue;
+    z-index: 997;
 }
 
 .sidebar {
-    width: --var(sidebar-width);
+    width: var(--sidebar-width);
     height: 100vh;
     position: absolute;
     top: 0;
-    left: calc(-1*--var(sidebar-width));
+    left: calc(-1*var(--sidebar-width));
     background-color: rgb(4, 247, 247);
+    transition: 0.5s;
+}
+
+.sidebar-open {
+    left: 0;
+    transition: 0.5s;
+}
+
+.sidebar > * {
+    margin-top: calc(2*var(--sidebar-action-len));
 }
 
 /* User data entry styles */
@@ -115,6 +127,11 @@ body {
 input[type=file] {
     display: none;
 }
+
+/* 
+    add effect where you hover over fille input it will display popop attatched to file input that either displays
+    'No Image Selected' or a thumbnail or the image, just scaled down
+    */
 
 .custom-file {
     border: 1px solid black;

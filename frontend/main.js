@@ -3,7 +3,9 @@ const output = document.querySelector(".output-window"),
     message = document.querySelector(".message"),
     btn = document.querySelector('.btn'),
     warning = document.querySelector('.warning'),
-    file = document.querySelector('.file');
+    file = document.querySelector('.file'),
+    sidebar_btn = document.querySelector('.sidebar-action'),
+    sidebar = document.querySelector('.sidebar')
 
 // sc = socket Client
 var sc = io()
@@ -51,12 +53,21 @@ document.querySelector('.username').addEventListener('keydown', (e) => {
 
 // --- End Username ---
 
+// Global Functions
+
 function addMessage(data, type) {
     let p = document.createElement("p");
-    if (type == 'alert') {
+    
+    if (type == 'join') {
         let text = document.createTextNode(data+" has joined the chat!")
         p.appendChild(text)
-        p.classList.add(type)
+        p.classList.add('alert')
+        output.append(p)
+    }
+    if (type == 'leave') {
+        let text = document.createTextNode(data+" has left the chat!")
+        p.appendChild(text)
+        p.classList.add('alert')
         output.append(p)
     }
     if (type == 'content' && data.hasOwnProperty('message')) {
@@ -84,12 +95,6 @@ function addAlert(message) {
     warning.classList.add('active')
 }
 
-sc.on("join", (name) => {
-    console.log('User Joined')
-    console.log(name)
-    addMessage(name, 'alert')
-})
-
 async function convertImage(file) {
     return new Promise((resolve, reject) => {
        let dataUrl;
@@ -103,6 +108,8 @@ async function convertImage(file) {
     })
     
 }
+
+// Event Listener Hell 
 
 btn.addEventListener('click', async (e) => {
 
@@ -148,10 +155,6 @@ message.addEventListener('keyup', (e) => {
     }
 })
 
-sc.on('message', (data) => {
-    addMessage(data, 'content')
-})
-
 btn.addEventListener('mouseover', (e) => {
     if (message.value.match(/./g) || file.files.length > 0) {
         e.target.classList.remove('bad-input')
@@ -161,4 +164,41 @@ btn.addEventListener('mouseover', (e) => {
         e.target.classList.add('bad-input')
         e.target.title = "Please enter a message or upload a file"
     }
+})
+
+var sidebar_open = false;
+
+sidebar_btn.addEventListener('mousedown', (e) => {
+    if (!sidebar_open) { sidebar.classList.add('sidebar-open'); sidebar_open = true; return; }
+    if (sidebar_open) { sidebar.classList.remove('sidebar-open'); sidebar_open = false; return; }
+})
+
+document.querySelector('.sidebar ul li').addEventListener('mousedown', (e) => {
+    // find better solution here
+    if (e.target.innerHTML == 'dm') { sc.emit('send-dm', "Request to send DM, Hello!") }
+})
+
+// Socket Events 
+
+sc.on('usersOnline', (usersOnline) => {
+    console.log('Users')
+    document.querySelector('.users-online').innerHTML = usersOnline.length
+})
+
+sc.on("join", ([name, usersOnline]) => {
+    document.querySelector('.users-online').innerHTML = usersOnline.length
+    addMessage(name, 'join')
+})
+
+sc.on('leave', ([name, usersOnline]) => {
+    document.querySelector('.users-online').innerHTML = usersOnline.length
+    addMessage(name, 'leave')
+})
+
+sc.on('message', (data) => {
+    addMessage(data, 'content')
+})
+
+sc.on('dm', (data) => {
+    console.log(data)
 })
