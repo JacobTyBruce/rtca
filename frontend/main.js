@@ -3,11 +3,17 @@ const output = document.querySelector(".output-window"),
     message = document.querySelector(".message"),
     btn = document.querySelector('.btn'),
     warning = document.querySelector('.warning'),
+    custom_file = document.querySelector('.custom-file'),
     file = document.querySelector('.file'),
     sidebar_btn = document.querySelector('.sidebar-action'),
-    sidebar = document.querySelector('.sidebar')
+    sidebar = document.querySelector('.sidebar'),
+    new_msg_win = document.querySelector('.new-msg-win > div'),
+    dm_user = document.querySelectorAll('.user')
 
-// sc = socket Client
+// sc = socket Client -- maybe move this connection to until after you send a username so we can control how client connects; 
+// ALTERNATIVE OPTION --- upon disconnection, halt reconnection and display a button that says reconnect and send a join event
+// OR upon disconnection event, halt client VISUALLY from doing anything and set interval to check upon reconnection (there is a prop that returns boolean), once returns true, send join event and resume client
+// -- these methods keep username and could keep UUID, but as long as server is updated, a changing UUID should be fine as user should never directly interact with it, but a change in username would confuse other users
 var sc = io()
 
 // --- username crap ---
@@ -53,7 +59,7 @@ document.querySelector('.username').addEventListener('keydown', (e) => {
 
 // --- End Username ---
 
-// Global Functions
+// Global Functions & vars
 
 function addMessage(data, type) {
     let p = document.createElement("p");
@@ -97,11 +103,9 @@ function addAlert(message) {
 
 async function convertImage(file) {
     return new Promise((resolve, reject) => {
-       let dataUrl;
         let reader = new FileReader()
         reader.onloadend = () => {
-            dataUrl = reader.result
-             resolve(dataUrl);
+             resolve(reader.result);
         }
         reader.onerror = () => {reject(undefined)};
         reader.readAsDataURL(file);
@@ -109,12 +113,39 @@ async function convertImage(file) {
     
 }
 
-// Event Listener Hell 
+// checks if dm user array has message alreadt with user passed in
+function hasMessage(user) {
+
+}
+
+var usersOnlineArr;
+
+/* dm struct:
+    {
+        username: [array of messages],
+        username2: [more messages]
+    }
+*/
+
+var dm_messages = {}
+
+// Event Listener Hell
+
+file.addEventListener('change', async (e) => {
+    console.log(file.files)
+    let img = await convertImage(file.files[0])
+    console.log(getComputedStyle(document.documentElement).getPropertyValue("--file-bg-img"))
+    let bg = `url("${img}")`;
+    document.documentElement.style.setProperty("--file-bg-img", bg)
+    console.log(getComputedStyle(document.documentElement).getPropertyValue("--file-bg-img"))
+})
 
 btn.addEventListener('click', async (e) => {
 
     let uploadFile;
-    if (file.files.length > 0) { uploadFile = await convertImage(file.files[0]) }
+    if (file.files.length > 0) {
+        uploadFile = await convertImage(file.files[0])
+    }
 
     if (message.value.match(/./g) || file.files.length > 0) {
         if (message.value.match(/./g) && file.files.length > 0) {
@@ -175,22 +206,47 @@ sidebar_btn.addEventListener('mousedown', (e) => {
 
 document.querySelector('.sidebar ul li').addEventListener('mousedown', (e) => {
     // find better solution here
-    if (e.target.innerHTML == 'dm') { sc.emit('send-dm', "Request to send DM, Hello!") }
+    console.log("Here are the other User's UUIDs: \n")
+    usersOnlineArr.forEach(user => { console.log(user)})
+    let uuid = prompt("User's UUID")
+    console.log("Sending DM")
+    // fix this monstrosity later, horrible solution
+    if (e.target.innerHTML == "DM's") { sc.emit('dm', {users: [uuid, username], message: "Hello!"}) }
 })
 
-// Socket Events 
+// Socket Events & vars
 
+// move this print users function to its own global function because users have to be redrawn on user leave/join/reconnect ---- note: users rejoin w/ same uuid
 sc.on('usersOnline', (usersOnline) => {
     console.log('Users')
     document.querySelector('.users-online').innerHTML = usersOnline.length
+    usersOnline.forEach((user) => {
+        if (user.username != username) {
+            let p = document.createElement('p');
+            let text = document.createTextNode(user.username)
+            p.append(text)
+            p.dataset.uuid = user.id
+            p.classList.add('user')
+            let newElm = new_msg_win.appendChild(p)
+            newElm.addEventListener("click", (e) => {
+                let newMsg = prompt("Enter the message to send to " + user.username);
+                if ()
+
+            })
+        }
+    })
+    dm_users = document.querySelectorAll('.user')
+
 })
 
 sc.on("join", ([name, usersOnline]) => {
+    usersOnlineArr = usersOnline;
     document.querySelector('.users-online').innerHTML = usersOnline.length
     addMessage(name, 'join')
 })
 
 sc.on('leave', ([name, usersOnline]) => {
+    usersOnlineArr = usersOnline;
     document.querySelector('.users-online').innerHTML = usersOnline.length
     addMessage(name, 'leave')
 })
@@ -199,6 +255,21 @@ sc.on('message', (data) => {
     addMessage(data, 'content')
 })
 
-sc.on('dm', (data) => {
-    console.log(data)
+sc.on('dm', ([from, message]) => {
+    console.log("DM Received")
+    addAlert("You got a DM from " + from + ": " + message)
+    setTimeout(() => { warning.classList.remove('active') }, 2500)
+})
+
+// don't want to implement Manager to listen for reconnect, but maybe in the future
+// with the disconnect method as well, if you can't reconnect it will have the disconnect reason to display to the user
+sc.on('disconnect', () => {
+    console.log('Disconnect from Server')
+    let check = setInterval(() => {
+        if (sc.connected == true) {
+            console.log('Reconnected - Sending Name Back to Server')
+            sc.emit('reconnect', username)
+            clearInterval(check)
+        } else { console.log("Disconnected") }
+    }, 500);
 })

@@ -31,14 +31,14 @@ var usersOnline = []
 
 ss.on('connection', (socket) => {
     console.log('a user connected: ' + socket.id);
-    socket.to(socket.id).emit('usersOnline', usersOnline)
 
     socket.on('join', (name) => {
-      console.log(name+'joined')
+      console.log(name+' joined')
       // sends new user name to every other client but one that sent
       usersOnline.push({username: name, id: socket.id})
       console.log(usersOnline)
       socket.broadcast.emit('join', [name, usersOnline]);
+      ss.to(socket.id).emit('usersOnline', usersOnline)
     })
 
     socket.on('message', (data) => {
@@ -56,14 +56,27 @@ ss.on('connection', (socket) => {
         })
     })
 
-    socket.on('send-dm', ({username, message}) => {
-      console.log(username, message);
+    // users array contains two elements, the UUID of the socket to send the message to and the USERNAME of the sender
+    socket.on('dm', ({users, message}) => {
+      console.log("Received DM")
+      let [toUUID, fromUser] = users;
+      console.log(toUUID, fromUser)
+      ss.to(toUUID).emit('dm', [fromUser, message])
+      console.log("Sent DM")
+    })
+
+    socket.on('reconnect', (name) => {
+      console.log('\n'+name+' reconnected')
+      usersOnline.push({username: name, id: socket.id})
+      console.log(usersOnline)
+      // send updated list
+      ss.to(socket.id).emit('usersOnline', usersOnline)
     })
 
 
   });
 
-server.listen(4444, () => {console.log("Listening on port 5000")})
+server.listen(4444, () => {console.log("Listening on port 4444")})
 
 // setInterval(() => {
 //   console.log("\n\n\n"+Date() + " - ")
